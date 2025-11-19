@@ -1,0 +1,26 @@
+/**
+ * Main App component with routing and layout
+ */
+import { Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import RecentApprovals from './pages/RecentApprovals';
+import UpcomingEvents from './pages/UpcomingEvents';
+import DrugDetail from './pages/DrugDetail';
+import About from './pages/About';
+
+function App() {
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/approvals" element={<RecentApprovals />} />
+        <Route path="/events" element={<UpcomingEvents />} />
+        <Route path="/drugs/:id" element={<DrugDetail />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </Layout>
+  );
+}
+
+export default App;
