@@ -9,9 +9,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 const navItems = [
   { label: 'Dashboard', path: '/' },
-  { label: 'Recent Approvals', path: '/approvals' },
-  { label: 'Upcoming Events', path: '/events' },
-  { label: 'My Subscriptions', path: '/subscriptions' },
+  { label: 'Approvals', path: '/approvals' },
+  { label: 'Events', path: '/events' },
+  { label: 'Trials', path: '/trials' },
+  { label: 'Catalysts', path: '/catalysts' },
+  { label: 'Subscriptions', path: '/subscriptions' },
   { label: 'About', path: '/about' },
 ];
 

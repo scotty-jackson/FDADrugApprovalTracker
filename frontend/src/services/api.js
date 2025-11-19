@@ -157,5 +157,90 @@ export const subscriptionApi = {
     api.get(`/subscriptions/check/${drugId}`, { params: { email } }),
 };
 
+/**
+ * Clinical Trials API endpoints
+ */
+export const trialsApi = {
+  /**
+   * Get paginated list of trials with optional filters
+   */
+  getTrials: (params = {}) => api.get('/trials', { params }),
+
+  /**
+   * Get detailed information about a specific trial
+   */
+  getTrial: (id) => api.get(`/trials/${id}`),
+
+  /**
+   * Get trial by registry ID (e.g., NCT number)
+   */
+  getTrialByRegistryId: (registryId) => api.get(`/trials/registry/${registryId}`),
+
+  /**
+   * Get trials filtered by phase
+   */
+  getTrialsByPhase: (phase, params = {}) => api.get(`/trials/phase/${phase}`, { params }),
+};
+
+/**
+ * Company API endpoints
+ */
+export const companyApi = {
+  /**
+   * Get list of all companies
+   */
+  getCompanies: (params = {}) => api.get('/companies', { params }),
+
+  /**
+   * Get company statistics and pipeline overview
+   */
+  getCompanyStats: (id) => api.get(`/companies/${id}/stats`),
+
+  /**
+   * Get trials for a specific company
+   */
+  getCompanyTrials: (id, params = {}) => api.get(`/companies/${id}/trials`, { params }),
+
+  /**
+   * Get drugs for a specific company
+   */
+  getCompanyDrugs: (id, params = {}) => api.get(`/companies/${id}/drugs`, { params }),
+};
+
+/**
+ * Catalyst API endpoints
+ */
+export const catalystApi = {
+  /**
+   * Get paginated list of catalysts with optional filters
+   */
+  getCatalysts: (params = {}) => api.get('/catalysts', { params }),
+
+  /**
+   * Get upcoming catalysts grouped by month
+   */
+  getUpcomingCatalysts: (params = {}) => api.get('/catalysts/upcoming', { params }),
+
+  /**
+   * Get catalyst statistics
+   */
+  getCatalystStats: () => api.get('/catalysts/stats'),
+};
+
+/**
+ * Disease Area API endpoints
+ */
+export const diseaseAreaApi = {
+  /**
+   * Get list of all disease areas
+   */
+  getDiseaseAreas: () => api.get('/disease-areas'),
+
+  /**
+   * Get statistics for a specific disease area
+   */
+  getDiseaseAreaStats: (diseaseArea) => api.get(`/disease-areas/${encodeURIComponent(diseaseArea)}/stats`),
+};
+
 // Export default api instance for custom requests
 export default api;
