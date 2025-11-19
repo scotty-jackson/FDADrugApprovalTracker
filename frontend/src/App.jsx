@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import RecentApprovals from './pages/RecentApprovals';
 import UpcomingEvents from './pages/UpcomingEvents';
 import DrugDetail from './pages/DrugDetail';
+import MySubscriptions from './pages/MySubscriptions';
 import About from './pages/About';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/approvals" element={<RecentApprovals />} />
         <Route path="/events" element={<UpcomingEvents />} />
         <Route path="/drugs/:id" element={<DrugDetail />} />
+        <Route path="/subscriptions" element={<MySubscriptions />} />
         <Route path="/about" element={<About />} />
       </Routes>
     </Layout>

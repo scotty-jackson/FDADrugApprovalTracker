@@ -159,3 +159,91 @@ class Event(Base):
 
     # Relationships
     drug = relationship("Drug", back_populates="events")
+
+
+class NotificationType(str, enum.Enum):
+    """Types of notifications users can receive."""
+    NEW_APPROVAL = "NEW_APPROVAL"  # New approval for a drug
+    NEW_EVENT = "NEW_EVENT"  # New PDUFA or event added
+    EVENT_REMINDER = "EVENT_REMINDER"  # Upcoming event reminder
+    EVENT_UPDATE = "EVENT_UPDATE"  # Event status changed
+    APPROVAL_UPDATE = "APPROVAL_UPDATE"  # Approval info updated
+
+
+class Subscriber(Base):
+    """
+    Email subscribers who want to receive notifications about drugs.
+    Passwordless system - users manage subscriptions via email links.
+    """
+    __tablename__ = "subscribers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    is_active = Column(Boolean, default=True, index=True)  # Can unsubscribe
+    verification_token = Column(String(100), unique=True, nullable=True)  # For email verification
+    is_verified = Column(Boolean, default=False, index=True)
+
+    # Notification preferences
+    notify_new_approvals = Column(Boolean, default=True)
+    notify_new_events = Column(Boolean, default=True)
+    notify_event_reminders = Column(Boolean, default=True)  # X days before event
+    notify_event_updates = Column(Boolean, default=True)
+    reminder_days_before = Column(Integer, default=7)  # Days before event to send reminder
+
+    # Frequency preferences
+    digest_mode = Column(Boolean, default=False)  # Send daily digest vs instant notifications
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_notification_at = Column(DateTime, nullable=True)
+
+    # Relationships
+    subscriptions = relationship("DrugSubscription", back_populates="subscriber", cascade="all, delete-orphan")
+    notifications = relationship("NotificationLog", back_populates="subscriber")
+
+
+class DrugSubscription(Base):
+    """
+    Links subscribers to specific drugs they want to track.
+    """
+    __tablename__ = "drug_subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    subscriber_id = Column(Integer, ForeignKey("subscribers.id"), nullable=False, index=True)
+    drug_id = Column(Integer, ForeignKey("drugs.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    subscriber = relationship("Subscriber", back_populates="subscriptions")
+    drug = relationship("Drug")
+
+    # Ensure unique subscriber-drug combinations
+    __table_args__ = (
+        {'sqlite_autoincrement': True},
+    )
+
+
+class NotificationLog(Base):
+    """
+    Tracks notifications sent to subscribers.
+    Prevents duplicate notifications and provides audit trail.
+    """
+    __tablename__ = "notification_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    subscriber_id = Column(Integer, ForeignKey("subscribers.id"), nullable=False, index=True)
+    drug_id = Column(Integer, ForeignKey("drugs.id"), nullable=True, index=True)
+    event_id = Column(Integer, ForeignKey("events.id"), nullable=True, index=True)
+    approval_id = Column(Integer, ForeignKey("approvals.id"), nullable=True, index=True)
+    notification_type = Column(SQLEnum(NotificationType), nullable=False, index=True)
+
+    subject = Column(String(500), nullable=False)
+    sent_at = Column(DateTime, default=datetime.utcnow, index=True)
+    email_sent_successfully = Column(Boolean, default=True)
+    error_message = Column(Text, nullable=True)
+
+    # Relationships
+    subscriber = relationship("Subscriber", back_populates="notifications")
+    drug = relationship("Drug")
+    event = relationship("Event")
+    approval = relationship("Approval")

@@ -31,6 +31,16 @@ class Settings(BaseSettings):
     fda_request_delay_seconds: int = 1
     fda_max_retries: int = 3
 
+    # Email settings
+    smtp_host: str = "console"  # Use 'console' for development (logs emails), or SMTP server
+    smtp_port: int = 1025
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_use_tls: bool = False
+    from_email: str = "noreply@fdatracker.com"
+    from_name: str = "FDA Drug Approval Tracker"
+    base_url: str = "http://localhost:5173"  # Frontend URL for email links
+
     @field_validator('allowed_origins')
     @classmethod
     def parse_origins(cls, v: str) -> List[str]:

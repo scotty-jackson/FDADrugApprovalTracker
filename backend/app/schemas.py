@@ -2,10 +2,10 @@
 Pydantic schemas for API request and response validation.
 These schemas define the structure of data sent to and from the API.
 """
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import Optional, List
 from datetime import date, datetime
-from app.models import FDACenter, ApplicationType, DecisionOutcome, EventType, EventStatus
+from app.models import FDACenter, ApplicationType, DecisionOutcome, EventType, EventStatus, NotificationType
 
 
 # Sponsor Schemas
@@ -222,3 +222,62 @@ class EventFilters(BaseModel):
     date_to: Optional[date] = None
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=20, ge=1, le=100)
+
+
+# Subscription Schemas
+class SubscriberCreate(BaseModel):
+    """Schema for creating a new subscriber."""
+    email: EmailStr
+
+
+class SubscriberUpdate(BaseModel):
+    """Schema for updating subscriber preferences."""
+    notify_new_approvals: Optional[bool] = None
+    notify_new_events: Optional[bool] = None
+    notify_event_reminders: Optional[bool] = None
+    notify_event_updates: Optional[bool] = None
+    reminder_days_before: Optional[int] = Field(None, ge=1, le=30)
+    digest_mode: Optional[bool] = None
+
+
+class Subscriber(BaseModel):
+    """Subscriber information."""
+    id: int
+    email: str
+    is_active: bool
+    is_verified: bool
+    notify_new_approvals: bool
+    notify_new_events: bool
+    notify_event_reminders: bool
+    notify_event_updates: bool
+    reminder_days_before: int
+    digest_mode: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DrugSubscriptionCreate(BaseModel):
+    """Schema for subscribing to a drug."""
+    drug_id: int
+
+
+class DrugSubscriptionResponse(BaseModel):
+    """Response for drug subscription."""
+    id: int
+    drug_id: int
+    drug_name: str
+    created_at: datetime
+
+
+class SubscriptionStatusResponse(BaseModel):
+    """Response indicating subscription status."""
+    subscribed: bool
+    message: str
+    subscriber: Optional[Subscriber] = None
+
+
+class VerifyEmailResponse(BaseModel):
+    """Response for email verification."""
+    success: bool
+    message: str

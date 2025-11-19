@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Dashboard', path: '/' },
   { label: 'Recent Approvals', path: '/approvals' },
   { label: 'Upcoming Events', path: '/events' },
+  { label: 'My Subscriptions', path: '/subscriptions' },
   { label: 'About', path: '/about' },
 ];
 

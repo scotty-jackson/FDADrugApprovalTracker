@@ -100,5 +100,62 @@ export const summaryApi = {
   getSponsors: () => api.get('/summary/sponsors'),
 };
 
+/**
+ * Subscription API endpoints
+ */
+export const subscriptionApi = {
+  /**
+   * Subscribe to email notifications
+   */
+  subscribe: (email) => api.post('/subscriptions/subscribe', { email }),
+
+  /**
+   * Verify email with token
+   */
+  verifyEmail: (token) => api.get('/subscriptions/verify', { params: { token } }),
+
+  /**
+   * Subscribe to a specific drug
+   */
+  subscribeToDrug: (drugId, email) =>
+    api.post(`/subscriptions/drugs/${drugId}`, null, { params: { email } }),
+
+  /**
+   * Unsubscribe from a specific drug
+   */
+  unsubscribeFromDrug: (drugId, email) =>
+    api.delete(`/subscriptions/drugs/${drugId}`, { params: { email } }),
+
+  /**
+   * Get my drug subscriptions
+   */
+  getMySubscriptions: (email) =>
+    api.get('/subscriptions/my-subscriptions', { params: { email } }),
+
+  /**
+   * Get subscription preferences
+   */
+  getPreferences: (email) =>
+    api.get('/subscriptions/preferences', { params: { email } }),
+
+  /**
+   * Update subscription preferences
+   */
+  updatePreferences: (email, updates) =>
+    api.patch('/subscriptions/preferences', updates, { params: { email } }),
+
+  /**
+   * Unsubscribe from all notifications
+   */
+  unsubscribeAll: (email) =>
+    api.post('/subscriptions/unsubscribe-all', null, { params: { email } }),
+
+  /**
+   * Check if subscribed to a drug
+   */
+  checkSubscriptionStatus: (drugId, email) =>
+    api.get(`/subscriptions/check/${drugId}`, { params: { email } }),
+};
+
 // Export default api instance for custom requests
 export default api;

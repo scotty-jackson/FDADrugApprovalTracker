@@ -26,6 +26,7 @@ import {
 import { format, parseISO } from 'date-fns';
 import { drugApi } from '../services/api';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import DrugSubscriptionButton from '../components/DrugSubscriptionButton';
 
 function DrugDetail() {
   const { id } = useParams();
@@ -105,6 +106,14 @@ function DrugDetail() {
             </Grid>
           )}
         </Grid>
+
+        {/* Email Subscription Button */}
+        <Box sx={{ mt: 3 }}>
+          <DrugSubscriptionButton
+            drugId={drug.id}
+            drugName={drug.brand_name || drug.drug_name}
+          />
+        </Box>
       </Paper>
 
       {/* Drug Information */}

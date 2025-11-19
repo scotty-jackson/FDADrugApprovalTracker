@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.database import init_db
-from app.routers import drugs, approvals, events, summary
+from app.routers import drugs, approvals, events, summary, subscriptions
 
 # Configure logging
 logging.basicConfig(
@@ -84,6 +84,7 @@ app.include_router(drugs.router, prefix="/api")
 app.include_router(approvals.router, prefix="/api")
 app.include_router(events.router, prefix="/api")
 app.include_router(summary.router, prefix="/api")
+app.include_router(subscriptions.router, prefix="/api")
 
 
 # Root endpoint
