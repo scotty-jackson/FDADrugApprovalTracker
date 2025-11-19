@@ -1,6 +1,6 @@
-# FDA Drug Approval Tracker
+# FDA Drug Approval + Clinical Trials Pipeline Tracker
 
-A full-stack web application for tracking FDA drug approvals, upcoming PDUFA dates, and regulatory decision events. Built with modern technologies and designed for investors, analysts, healthcare professionals, and patients.
+A comprehensive full-stack web application for tracking FDA drug approvals, clinical trial pipelines, upcoming PDUFA dates, and investment catalysts. Built with modern technologies and designed for investors, analysts, healthcare professionals, and patients to track the drug development pipeline from early trials to FDA approval.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11-blue.svg)
@@ -8,14 +8,36 @@ A full-stack web application for tracking FDA drug approvals, upcoming PDUFA dat
 
 ## 🎯 Features
 
+### FDA Drug Approvals
 - **Recent Approvals Dashboard**: Browse and search FDA drug approvals with advanced filtering
 - **Upcoming Events Calendar**: Track PDUFA dates and advisory committee meetings
 - **Drug Detail Pages**: Comprehensive information including approval history and events
+- **Email Subscriptions**: Subscribe to drug-specific email updates for approvals and events
 - **Summary Analytics**: Charts and statistics showing approval trends
 - **Advanced Filtering**: Filter by therapeutic area, FDA center, application type, sponsor, and ticker
+
+### Clinical Trials Pipeline
+- **Trials Explorer**: Search and filter 1000s of clinical trials from ClinicalTrials.gov
+- **Trial Detail Pages**: Full trial information including conditions, interventions, outcomes
+- **Company Pipeline Dashboards**: Complete pipeline view by phase, disease area, and geography
+- **Disease Area Analysis**: Competitive landscape with trials by phase and top companies
+- **Phase Filtering**: Filter trials by Early Phase 1, Phase 1, 2, 3, 4
+- **Status Tracking**: Track recruiting, active, completed, and terminated trials
+
+### Investment Catalysts
+- **Catalyst Calendar**: Upcoming FDA decisions, trial readouts, and regulatory events grouped by month
+- **Probability Scoring**: AI-driven probability bands (Very High, High, Medium, Low) for each catalyst
+- **Multi-Source Integration**: Catalysts auto-generated from trial completion dates and FDA events
+- **Company-Level View**: All upcoming catalysts for specific companies
+- **Type Filtering**: Filter by PDUFA dates, AdCom meetings, topline readouts, primary completions
+
+### Technology & UX
 - **SEO Optimized**: Clean URLs and meta tags for search engine visibility
+- **Email Notifications**: Passwordless subscription system with verification
 - **Ad-Ready**: Pre-configured ad placement containers for monetization
 - **Mobile Responsive**: Works seamlessly on desktop, tablet, and mobile devices
+- **Data Visualizations**: Charts and graphs using Recharts (pie, bar, sankey diagrams)
+- **Real-time Search**: Instant filtering and search across all data types
 
 ## 🏗️ Architecture
 
@@ -68,10 +90,13 @@ FDADrugApprovalTracker/
 │   ├── package.json        # Node dependencies
 │   ├── vite.config.js      # Vite configuration
 │   └── Dockerfile          # Frontend container config
-├── scripts/                # Utility scripts
-│   ├── init_db.py          # Database initialization
-│   ├── seed_data.py        # Seed sample data
-│   └── ingest_fda_data.py  # FDA data ingestion
+├── scripts/                       # Utility scripts
+│   ├── init_db.py                 # Database initialization
+│   ├── seed_data.py               # Seed sample data
+│   ├── ingest_fda_data.py         # FDA data ingestion
+│   ├── ingest_clinical_trials.py  # ClinicalTrials.gov data ingestion
+│   ├── generate_catalysts.py      # Auto-generate investment catalysts
+│   └── send_notifications.py      # Email notification background job
 ├── docker-compose.yml      # Docker orchestration
 ├── .env.example            # Environment variables template
 └── README.md               # This file
@@ -187,28 +212,89 @@ This will start:
 
 ## 📊 Data Sources
 
-The application is designed to ingest data from public FDA sources:
+The application integrates data from multiple public sources:
 
+### FDA Drug Approvals
 1. **FDA Drugs@FDA Database**: https://www.accessdata.fda.gov/scripts/cder/daf/
 2. **FDA CDER Approvals**: https://www.fda.gov/drugs/new-drugs-fda-cders-new-molecular-entities-and-new-therapeutic-biological-products
 3. **FDA CBER Approvals**: https://www.fda.gov/vaccines-blood-biologics/approvals-clearances
 4. **FDA Press Releases**: https://www.fda.gov/news-events/fda-newsroom/press-announcements
 
+### Clinical Trials
+5. **ClinicalTrials.gov API v2**: https://clinicaltrials.gov/api/v2/
+   - Global clinical trial registry with 400,000+ trials
+   - Structured data on phase, status, conditions, interventions, outcomes
+   - Updated daily with new trial registrations
+
 ### Data Ingestion
 
-The `scripts/ingest_fda_data.py` script provides a framework for fetching FDA data. To use it:
+#### FDA Drug Approvals
 
-1. Review FDA's robots.txt and terms of service
-2. Implement parsing logic for specific FDA data sources
-3. Configure request delays to be respectful of FDA servers
-4. Run manually or schedule with cron:
+The `scripts/ingest_fda_data.py` script provides a framework for fetching FDA data:
 
 ```bash
 # Manual run
-python scripts/ingest_fda_data.py
+python scripts/ingest_fda_data.py --verbose
+
+# Incremental update (only new records)
+python scripts/ingest_fda_data.py --incremental
 
 # Schedule with cron (daily at 2 AM)
-0 2 * * * cd /path/to/project && /path/to/venv/bin/python scripts/ingest_fda_data.py
+0 2 * * * cd /path/to/project && /path/to/venv/bin/python scripts/ingest_fda_data.py --incremental
+```
+
+#### Clinical Trials
+
+The `scripts/ingest_clinical_trials.py` script fetches trial data from ClinicalTrials.gov API v2:
+
+```bash
+# Manual run - fetch all trials in a disease area
+python scripts/ingest_clinical_trials.py --disease-area "Oncology" --limit 1000
+
+# Incremental update (only trials updated in last 7 days)
+python scripts/ingest_clinical_trials.py --incremental
+
+# Filter by phase and status
+python scripts/ingest_clinical_trials.py --phase "Phase 3" --status "Recruiting" --limit 500
+
+# Schedule with cron (daily at 3 AM)
+0 3 * * * cd /path/to/project && /path/to/venv/bin/python scripts/ingest_clinical_trials.py --incremental
+```
+
+#### Investment Catalysts
+
+The `scripts/generate_catalysts.py` script auto-generates catalysts from trials and events:
+
+```bash
+# Generate all catalysts
+python scripts/generate_catalysts.py
+
+# Regenerate all catalysts (delete and recreate)
+python scripts/generate_catalysts.py --regenerate
+
+# Update probabilities based on current trial status
+python scripts/generate_catalysts.py --update-probabilities
+
+# Archive old catalysts
+python scripts/generate_catalysts.py --archive-old
+
+# Schedule with cron (daily at 4 AM)
+0 4 * * * cd /path/to/project && /path/to/venv/bin/python scripts/generate_catalysts.py --update-probabilities
+```
+
+#### Email Notifications
+
+The `scripts/send_notifications.py` script sends email notifications to subscribers:
+
+```bash
+# Send all pending notifications
+python scripts/send_notifications.py
+
+# Send only event reminders (7 days before)
+python scripts/send_notifications.py --reminders-only
+
+# Schedule with cron (daily at 8 AM)
+0 8 * * * cd /path/to/project && /path/to/venv/bin/python scripts/send_notifications.py
 ```
 
 ## 🔧 Configuration
@@ -397,25 +483,43 @@ To integrate Google AdSense:
 
 ## 📈 Roadmap
 
+### Completed ✅
+- [x] FDA drug approval tracking and filtering
+- [x] Clinical trial data integration (ClinicalTrials.gov API v2)
+- [x] Email notification system with verification
+- [x] Investment catalyst tracking and auto-generation
+- [x] Company pipeline dashboards
+- [x] Disease area competitive analysis
+- [x] Passwordless subscription system
+- [x] Data visualizations (charts, graphs)
+- [x] Mobile-responsive design
+- [x] SEO optimization
+
 ### Near-term Improvements
 
-- [ ] Implement actual FDA data source integration (Drugs@FDA API/CSV downloads)
-- [ ] Add more comprehensive company-to-ticker mapping database
-- [ ] Implement email alerts for upcoming PDUFA dates
+- [ ] Implement actual FDA Drugs@FDA dataset integration (CSV/XML downloads)
+- [ ] Add EUCTR (European clinical trials) data integration
+- [ ] Sankey diagram visualization for trial phase progression
+- [ ] Trial detail page with full trial information
+- [ ] Expand company-to-ticker mapping database
 - [ ] Add user accounts and personalized watchlists
 - [ ] Integrate adverse event data (FAERS)
-- [ ] Add clinical trial data integration (ClinicalTrials.gov)
 - [ ] Implement full-text search with Elasticsearch
+- [ ] Add email digest mode (daily/weekly summaries)
+- [ ] Stock price integration for company dashboards
 
 ### Long-term Features
 
 - [ ] Mobile app (React Native)
 - [ ] Premium subscription tier with advanced analytics
 - [ ] API access for third-party developers
-- [ ] Machine learning predictions for approval likelihood
-- [ ] Integration with financial data (stock prices, market cap)
+- [ ] Machine learning predictions for approval likelihood and catalyst timing
+- [ ] Integration with financial data (stock prices, market cap, analyst ratings)
 - [ ] RSS feeds and webhooks for notifications
 - [ ] Multilingual support
+- [ ] Real-time notifications via WebSocket
+- [ ] AI-powered disease area mapping and normalization
+- [ ] Competitive intelligence dashboard (pipeline comparison across companies)
 
 ## 📄 License
 
