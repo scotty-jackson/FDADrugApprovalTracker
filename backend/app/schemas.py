@@ -281,3 +281,189 @@ class VerifyEmailResponse(BaseModel):
     """Response for email verification."""
     success: bool
     message: str
+
+
+# ============================================================================
+# CLINICAL TRIALS SCHEMAS
+# ============================================================================
+
+from app.models import (
+    TrialPhase, TrialStatus, StudyType, InterventionType,
+    OutcomeType, CatalystType, CatalystProbability
+)
+
+
+# Trial Schemas
+class TrialBase(BaseModel):
+    registry: str
+    registry_id: str
+    title: str
+    status: Optional[TrialStatus] = None
+    phase: Optional[TrialPhase] = None
+    study_type: Optional[StudyType] = None
+    start_date: Optional[date] = None
+    primary_completion_date: Optional[date] = None
+    completion_date: Optional[date] = None
+    location_summary: Optional[str] = None
+    brief_summary: Optional[str] = None
+
+
+class TrialCreate(TrialBase):
+    sponsor_id: Optional[int] = None
+
+
+class Trial(TrialBase):
+    id: int
+    sponsor_id: Optional[int] = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TrialCondition(BaseModel):
+    id: int
+    condition_name: str
+    disease_area: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TrialIntervention(BaseModel):
+    id: int
+    intervention_type: Optional[InterventionType] = None
+    intervention_name: str
+    description: Optional[str] = None
+    linked_drug_id: Optional[int] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TrialOutcome(BaseModel):
+    id: int
+    outcome_type: OutcomeType
+    measure: str
+    time_frame: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TrialResult(BaseModel):
+    id: int
+    results_available: bool
+    results_url: Optional[str] = None
+    primary_outcome_summary: Optional[str] = None
+    reported_success_flag: Optional[bool] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TrialDetail(Trial):
+    """Extended trial with all related data."""
+    sponsor: Optional[Sponsor] = None
+    conditions: List[TrialCondition] = []
+    interventions: List[TrialIntervention] = []
+    outcomes: List[TrialOutcome] = []
+    results: Optional[TrialResult] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Catalyst Schemas
+class CatalystBase(BaseModel):
+    catalyst_type: CatalystType
+    expected_date: Optional[date] = None
+    probability_band: CatalystProbability = CatalystProbability.MEDIUM
+    title: str
+    description: Optional[str] = None
+    disease_area: Optional[str] = None
+
+
+class CatalystCreate(CatalystBase):
+    trial_id: Optional[int] = None
+    drug_id: Optional[int] = None
+    company_mapping_id: Optional[int] = None
+
+
+class Catalyst(CatalystBase):
+    id: int
+    trial_id: Optional[int] = None
+    drug_id: Optional[int] = None
+    company_mapping_id: Optional[int] = None
+    is_auto_generated: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CatalystWithDetails(Catalyst):
+    """Catalyst with related trial/drug/company info."""
+    trial: Optional[Trial] = None
+    drug: Optional[Drug] = None
+    company: Optional[CompanyMapping] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Company Dashboard Schemas
+class CompanyStats(BaseModel):
+    """Aggregated statistics for a company."""
+    company_id: int
+    company_name: str
+    ticker: Optional[str] = None
+    total_trials: int
+    trials_by_phase: dict
+    total_drugs: int
+    total_approvals: int
+    active_disease_areas: List[str]
+    upcoming_catalysts_count: int
+
+
+class CompanyDetail(BaseModel):
+    """Detailed company information."""
+    company: CompanyMapping
+    sponsors: List[Sponsor]
+    trials: List[TrialDetail]
+    drugs: List[DrugDetail]
+    approvals: List[ApprovalWithDrug]
+    catalysts: List[CatalystWithDetails]
+    stats: CompanyStats
+
+
+# Disease Area Schemas  
+class DiseaseAreaStats(BaseModel):
+    """Statistics for a disease area."""
+    disease_area: str
+    total_trials: int
+    trials_by_phase: dict
+    trials_by_status: dict
+    total_drugs: int
+    total_companies: int
+    top_companies: List[dict]  # [{name, ticker, trial_count}]
+    recent_approvals_count: int
+
+
+# Trial Filters
+class TrialFilters(BaseModel):
+    search: Optional[str] = None
+    phase: Optional[TrialPhase] = None
+    status: Optional[TrialStatus] = None
+    disease_area: Optional[str] = None
+    sponsor_id: Optional[int] = None
+    ticker: Optional[str] = None
+    registry: Optional[str] = None
+    date_from: Optional[date] = None
+    date_to: Optional[date] = None
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=20, ge=1, le=100)
+
+
+# Catalyst Filters
+class CatalystFilters(BaseModel):
+    catalyst_type: Optional[CatalystType] = None
+    disease_area: Optional[str] = None
+    date_from: Optional[date] = None
+    date_to: Optional[date] = None
+    ticker: Optional[str] = None
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=20, ge=1, le=100)
