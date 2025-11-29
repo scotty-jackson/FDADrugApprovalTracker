@@ -2,7 +2,7 @@
  * Clinical Trials Explorer page
  * Shows paginated, searchable, and filterable list of clinical trials
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -56,7 +56,7 @@ function TrialsExplorer() {
 
   useEffect(() => {
     loadTrials();
-  }, [page, pageSize, search, phase, status, diseaseArea]);
+  }, [loadTrials]);
 
   const loadDiseaseAreas = async () => {
     try {
@@ -67,7 +67,7 @@ function TrialsExplorer() {
     }
   };
 
-  const loadTrials = async () => {
+  const loadTrials = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -90,7 +90,7 @@ function TrialsExplorer() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [diseaseArea, page, pageSize, phase, search, status]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);

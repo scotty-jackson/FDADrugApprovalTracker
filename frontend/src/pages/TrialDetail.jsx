@@ -355,7 +355,7 @@ function TrialDetail() {
 
       <Box sx={{ mt: 3 }}>
         <Link component={RouterLink} to="/trials" underline="hover">
-          <- Back to Trials Explorer
+          &larr; Back to Trials Explorer
         </Link>
       </Box>
     </Box>

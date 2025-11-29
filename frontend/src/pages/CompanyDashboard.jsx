@@ -2,7 +2,7 @@
  * Company Dashboard page
  * Shows company pipeline overview with trials by phase, drugs, and upcoming catalysts
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -28,13 +28,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 import { format } from 'date-fns';
@@ -49,7 +43,6 @@ function CompanyDashboard() {
   const { id } = useParams();
   useDocumentTitle('Company Pipeline Dashboard');
 
-  const [company, setCompany] = useState(null);
   const [stats, setStats] = useState(null);
   const [trials, setTrials] = useState([]);
   const [drugs, setDrugs] = useState([]);
@@ -57,11 +50,7 @@ function CompanyDashboard() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    loadCompanyData();
-  }, [id]);
-
-  const loadCompanyData = async () => {
+  const loadCompanyData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -84,7 +73,11 @@ function CompanyDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadCompanyData();
+  }, [loadCompanyData]);
 
   const getPhaseColor = (phase) => {
     const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#00C49F'];

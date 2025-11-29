@@ -2,7 +2,7 @@
  * Drug Subscription Button Component
  * Allows users to subscribe to email notifications for a specific drug
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Button,
   Dialog,
@@ -34,16 +34,16 @@ function DrugSubscriptionButton({ drugId, drugName }) {
       setEmail(storedEmail);
       checkSubscriptionStatus(storedEmail);
     }
-  }, [drugId]);
+  }, [checkSubscriptionStatus]);
 
-  const checkSubscriptionStatus = async (emailToCheck) => {
+  const checkSubscriptionStatus = useCallback(async (emailToCheck) => {
     try {
       const response = await subscriptionApi.checkSubscriptionStatus(drugId, emailToCheck);
       setIsSubscribed(response.data.subscribed);
     } catch (err) {
       console.error('Error checking subscription status:', err);
     }
-  };
+  }, [drugId]);
 
   const handleOpen = () => {
     setOpen(true);

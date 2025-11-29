@@ -2,7 +2,7 @@
  * Recent Approvals page
  * Shows paginated, searchable, and filterable list of FDA drug approvals
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -56,7 +56,7 @@ function RecentApprovals() {
 
   useEffect(() => {
     loadApprovals();
-  }, [page, pageSize, search, fdaCenter, applicationType, therapeuticArea]);
+  }, [loadApprovals]);
 
   const loadTherapeuticAreas = async () => {
     try {
@@ -67,7 +67,7 @@ function RecentApprovals() {
     }
   };
 
-  const loadApprovals = async () => {
+  const loadApprovals = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -90,7 +90,7 @@ function RecentApprovals() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [applicationType, fdaCenter, page, pageSize, search, therapeuticArea]);
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);

@@ -2,7 +2,7 @@
  * Drug Detail page
  * Shows comprehensive information about a specific drug including approval history
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -38,11 +38,7 @@ function DrugDetail() {
     drug ? `${drug.brand_name || drug.drug_name} - FDA Drug Approval Tracker` : 'Drug Details'
   );
 
-  useEffect(() => {
-    loadDrugDetail();
-  }, [id]);
-
-  const loadDrugDetail = async () => {
+  const loadDrugDetail = useCallback(async () => {
     try {
       setLoading(true);
       const response = await drugApi.getDrug(id);
@@ -54,7 +50,11 @@ function DrugDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadDrugDetail();
+  }, [loadDrugDetail]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';

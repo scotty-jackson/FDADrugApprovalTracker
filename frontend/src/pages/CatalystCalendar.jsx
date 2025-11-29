@@ -2,7 +2,7 @@
  * Catalyst Calendar page
  * Shows upcoming investment catalysts grouped by month
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -40,22 +40,16 @@ function CatalystCalendar() {
   const [catalystType, setCatalystType] = useState('');
   const [diseaseAreas, setDiseaseAreas] = useState([]);
 
-  useEffect(() => {
-    loadDiseaseAreas();
-    loadCatalysts();
-    loadStats();
-  }, [diseaseArea, catalystType]);
-
-  const loadDiseaseAreas = async () => {
+  const loadDiseaseAreas = useCallback(async () => {
     try {
       const response = await diseaseAreaApi.getDiseaseAreas();
       setDiseaseAreas(response.data);
     } catch (err) {
       console.error('Error loading disease areas:', err);
     }
-  };
+  }, []);
 
-  const loadCatalysts = async () => {
+  const loadCatalysts = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -74,16 +68,28 @@ function CatalystCalendar() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [diseaseArea, catalystType]);
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const response = await catalystApi.getCatalystStats();
       setStats(response.data);
     } catch (err) {
       console.error('Error loading catalyst stats:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadDiseaseAreas();
+  }, [loadDiseaseAreas]);
+
+  useEffect(() => {
+    loadCatalysts();
+  }, [loadCatalysts]);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   const getCatalystTypeColor = (type) => {
     const colors = {

@@ -2,7 +2,7 @@
  * Upcoming Events page
  * Shows PDUFA dates, advisory committee meetings, and other FDA events
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -51,9 +51,9 @@ function UpcomingEvents() {
 
   useEffect(() => {
     loadEvents();
-  }, [page, pageSize, eventType, eventStatus, daysAhead]);
+  }, [loadEvents]);
 
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -75,7 +75,7 @@ function UpcomingEvents() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [daysAhead, eventStatus, eventType, page, pageSize]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
