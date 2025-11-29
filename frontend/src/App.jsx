@@ -10,6 +10,7 @@ import DrugDetail from './pages/DrugDetail';
 import MySubscriptions from './pages/MySubscriptions';
 import About from './pages/About';
 import TrialsExplorer from './pages/TrialsExplorer';
+import TrialDetail from './pages/TrialDetail';
 import CatalystCalendar from './pages/CatalystCalendar';
 import CompanyDashboard from './pages/CompanyDashboard';
 
@@ -23,6 +24,7 @@ function App() {
         <Route path="/drugs/:id" element={<DrugDetail />} />
         <Route path="/subscriptions" element={<MySubscriptions />} />
         <Route path="/trials" element={<TrialsExplorer />} />
+        <Route path="/trials/:id" element={<TrialDetail />} />
         <Route path="/catalysts" element={<CatalystCalendar />} />
         <Route path="/companies/:id" element={<CompanyDashboard />} />
         <Route path="/about" element={<About />} />
